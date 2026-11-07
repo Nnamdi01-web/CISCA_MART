@@ -21,8 +21,9 @@ export default function ConsultationReceived({ consultationId, onBackHome, onPro
     if (!actualId) return;
     setLoading(true);
 
-    try {
-      const res = await fetch(`http://localhost:5000/api/admin/consultations/${actualId}`);
+try {
+  // ✅ Using API_BASE instead of hardcoded localhost
+  const res = await fetch(`${API_BASE}/admin/consultations/${actualId}`);
       if (!res.ok) throw new Error('Failed to fetch status');
       const data = await res.json();
 
@@ -31,9 +32,10 @@ export default function ConsultationReceived({ consultationId, onBackHome, onPro
       if (consultationData && consultationData.status) {
         setStatus(consultationData.status);
 
-        if (consultationData.status === 'Completed' || consultationData.status === 'Routine Ready' || consultationData.status === 'Paid') {
-          const routineRes = await fetch(`http://localhost:5000/api/routines/${actualId}`);
-          if (routineRes.ok) {
+if (consultationData.status === 'Completed' || consultationData.status === 'Routine Ready' || consultationData.status === 'Paid') {
+  // ✅ Using API_BASE instead of hardcoded localhost
+  const routineRes = await fetch(`${API_BASE}/routines/${actualId}`);
+  if (routineRes.ok) {
             const routineData = await routineRes.json();
             setRoutine(routineData.routine || routineData);
           } else {

@@ -34,7 +34,9 @@ const PaymentAndConfirmation = ({
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/orders', {
+
+// ✅ Updated to use your dynamic API_BASE variable
+const response = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -3,7 +3,9 @@ const path = require('path');
 const axios = require('axios');
 const FormData = require('form-data');
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
 
 async function runUploadTest() {
   try {

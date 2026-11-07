@@ -60,18 +60,19 @@ export default function CreateRoutine({ consultation, onRoutineSent, onBack }) {
     setSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin/routines', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          consultationId: consultationId,
-          consultation_id: consultationId,
-          recommendedProducts,
-          products: recommendedProducts,
-          adminNotes,
-          totalPrice
-        })
-      });
+    // ✅ Using your dynamic API_BASE variable
+    const response = await fetch(`${API_BASE}/admin/routines`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        consultationId: consultationId,
+        consultation_id: consultationId,
+        recommendedProducts,
+        products: recommendedProducts,
+        adminNotes,
+        totalPrice
+      })
+    });
 
       const data = await response.json();
       if (data.success || response.ok) {

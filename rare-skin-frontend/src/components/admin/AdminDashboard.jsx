@@ -25,8 +25,9 @@ export default function AdminDashboard({ onSelectConsultation, products = [], on
     setErrorMessage(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin/consultations');
-      if (!response.ok) throw new Error(`Status: ${response.status}`);
+      // ✅ Using your dynamic API_BASE variable
+const response = await fetch(`${API_BASE}/admin/consultations`);
+if (!response.ok) throw new Error(`Status: ${response.status}`);
 
       const data = await response.json();
       if (data.success || Array.isArray(data.consultations)) {
@@ -36,9 +37,10 @@ export default function AdminDashboard({ onSelectConsultation, products = [], on
         setErrorMessage(data.error || 'Failed to fetch consultations.');
       }
     } catch (err) {
-      console.error('Fetch error:', err);
-      setErrorMessage('Could not connect to server at http://localhost:5000');
-    } finally {
+     console.error('Fetch error:', err);
+// ✅ Dynamically shows whichever server it tried to connect to
+setErrorMessage(`Could not connect to server at ${API_BASE}`);
+} finally {
       setLoading(false);
     }
   };
@@ -64,16 +66,17 @@ export default function AdminDashboard({ onSelectConsultation, products = [], on
     setSaving(true);
     setErrorMessage(null);
 
-    try {
-      const response = await fetch('http://localhost:5000/api/admin/routines', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          consultationId: selectedConsult.id,
-          products: selectedProducts,
-          adminNotes: adminNotes,
-        }),
-      });
+  try {
+    // ✅ Using your dynamic API_BASE variable
+    const response = await fetch(`${API_BASE}/admin/routines`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        consultationId: selectedConsult.id,
+        products: selectedProducts,
+        adminNotes: adminNotes,
+      }),
+    });
 
       const data = await response.json();
 
@@ -114,9 +117,10 @@ export default function AdminDashboard({ onSelectConsultation, products = [], on
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    const url = isEditingProduct 
-      ? `http://localhost:5000/api/products/${productForm.id}`
-      : 'http://localhost:5000/api/products';
+    // ✅ Using your dynamic API_BASE variable for both editing and creating
+const url = isEditingProduct 
+      ? `${API_BASE}/products/${productForm.id}`
+      : `${API_BASE}/products`;
     
     const method = isEditingProduct ? 'PUT' : 'POST';
 

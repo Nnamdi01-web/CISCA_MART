@@ -4,7 +4,7 @@ const axios = require('axios');
 async function registerTestUser() {
   try {
     console.log('Registering test user...');
-    const response = await axios.post('http://localhost:5000/api/auth/register', {
+   const response = await axios.post(`${import.meta.env.VITE_API_URL || 'https://cisca-mart.onrender.com'}/api/auth/register`, {
       name: 'Client Test User',
       email: 'client_test@example.com',
       password: 'TestPassword123!'

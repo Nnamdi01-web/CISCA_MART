@@ -13,9 +13,9 @@ export default function ViewRoutine({ consultationId, onProceedToBuy }) {
   }, [consultationId]);
 
   const fetchRoutine = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/routines/${consultationId}`);
-      const data = await response.json();
+    try {// ✅ Using your dynamic API_BASE variable
+const response = await fetch(`${API_BASE}/routines/${consultationId}`);
+const data = await response.json();
       if (data.success) {
         setRoutineData(data.routine);
       }
@@ -42,8 +42,12 @@ export default function ViewRoutine({ consultationId, onProceedToBuy }) {
 
   const getImageUrl = (url) => {
     if (!url) return null;
-    if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    return `http://localhost:5000${url.startsWith('/') ? '' : '/'}${url}`;
+    // Make sure API_BASE is available in this file (e.g., const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';)
+
+if (url.startsWith('http://') || url.startsWith('https://')) return url;
+
+// ✅ Using your dynamic variable instead of hardcoded localhost
+return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
   const handleNeedHelp = () => {

@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Sparkles, ArrowRight, ShieldCheck, Lock, Mail, User } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
 
 export default function AuthScreens({ onAuthSuccess }) {
   const [currentScreen, setCurrentScreen] = useState('welcome');

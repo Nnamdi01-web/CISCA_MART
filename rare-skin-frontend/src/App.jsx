@@ -93,18 +93,21 @@ export default function App() {
   const handleRoutineSent = () => {
     setView('admin-dashboard');
   };
-
-  const handlePaymentSuccess = async (reference) => {
+const handlePaymentSuccess = async (reference) => {
     setPaymentRef(reference.reference);
 
+    // Make sure this line is added so it knows whether to use Render or localhost
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     try {
-      // Updated endpoint to align with standard backend payment verification routes
-      await fetch(`http://localhost:5000/api/payments/verify`, {
+      // ✅ Now using the dynamic variable instead of hardcoded localhost
+      await fetch(`${API_URL}/api/payments/verify`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
+        // (Make sure to include your body data or closing code here depending on the rest of your function)
         body: JSON.stringify({
           reference: reference.reference,
           consultationId: activeConsultationId,
