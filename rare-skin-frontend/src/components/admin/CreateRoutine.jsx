@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-
+// 👇 ADD THIS LINE RIGHT HERE
+const API_BASE = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
+  
 const AVAILABLE_PRODUCTS = [
   // Cleansers
   { id: 1, name: 'Gentle Cleanser', price: 6500, category: 'Cleanser' },

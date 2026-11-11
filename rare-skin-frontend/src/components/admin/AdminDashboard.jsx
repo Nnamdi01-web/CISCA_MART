@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-// 👇 ADD THIS LINE RIGHT HERE
-const API_BASE = import.meta.env.VITE_API_URL 
+
+export const API_BASE = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api` 
   : 'http://localhost:5000/api';
+
 export default function AdminDashboard({ onSelectConsultation, products = [], onRefreshProducts }) {
   const [activeTab, setActiveTab] = useState('consultations'); // 'consultations' | 'products'
   const [stats, setStats] = useState({ pending: 0, completed: 0, totalOrders: 0, totalSales: 0 });
@@ -28,9 +29,8 @@ export default function AdminDashboard({ onSelectConsultation, products = [], on
     setErrorMessage(null);
 
     try {
-      // ✅ Using your dynamic API_BASE variable
-const response = await fetch(`${API_BASE}/admin/consultations`);
-if (!response.ok) throw new Error(`Status: ${response.status}`);
+      const response = await fetch(`${API_BASE}/admin/consultations`);
+      if (!response.ok) throw new Error(`Status: ${response.status}`);
 
       const data = await response.json();
       if (data.success || Array.isArray(data.consultations)) {
@@ -40,10 +40,9 @@ if (!response.ok) throw new Error(`Status: ${response.status}`);
         setErrorMessage(data.error || 'Failed to fetch consultations.');
       }
     } catch (err) {
-     console.error('Fetch error:', err);
-// ✅ Dynamically shows whichever server it tried to connect to
-setErrorMessage(`Could not connect to server at ${API_BASE}`);
-} finally {
+      console.error('Fetch error:', err);
+      setErrorMessage(`Could not connect to server at ${API_BASE}`);
+    } finally {
       setLoading(false);
     }
   };
@@ -69,17 +68,16 @@ setErrorMessage(`Could not connect to server at ${API_BASE}`);
     setSaving(true);
     setErrorMessage(null);
 
-  try {
-    // ✅ Using your dynamic API_BASE variable
-    const response = await fetch(`${API_BASE}/admin/routines`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        consultationId: selectedConsult.id,
-        products: selectedProducts,
-        adminNotes: adminNotes,
-      }),
-    });
+    try {
+      const response = await fetch(`${API_BASE}/admin/routines`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          consultationId: selectedConsult.id,
+          products: selectedProducts,
+          adminNotes: adminNotes,
+        }),
+      });
 
       const data = await response.json();
 
@@ -120,15 +118,12 @@ setErrorMessage(`Could not connect to server at ${API_BASE}`);
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    // ✅ Using your dynamic API_BASE variable for both editing and creating
-const url = isEditingProduct 
+    const url = isEditingProduct 
       ? `${API_BASE}/products/${productForm.id}`
       : `${API_BASE}/products`;
     
     const method = isEditingProduct ? 'PUT' : 'POST';
 
-    // Retrieve saved token from localStorage so the backend allows the save
-    // Retrieve saved token from localStorage using your app's specific key name
     const token = localStorage.getItem('ciscamart_token') || localStorage.getItem('token') || localStorage.getItem('accessToken');
 
     try {
