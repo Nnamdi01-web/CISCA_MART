@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-
+// 👇 ADD THIS LINE RIGHT HERE
+const API_BASE = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
 export default function AdminDashboard({ onSelectConsultation, products = [], onRefreshProducts }) {
   const [activeTab, setActiveTab] = useState('consultations'); // 'consultations' | 'products'
   const [stats, setStats] = useState({ pending: 0, completed: 0, totalOrders: 0, totalSales: 0 });
