@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_BASE } from '../api';
+import { API_BASE } from '../../api';
 
 export default function ConsultationDetail({ consultation, onProceedToRoutine, onBack }) {
   const [activeTab, setActiveTab] = useState('answers'); // 'answers' or 'photos'
