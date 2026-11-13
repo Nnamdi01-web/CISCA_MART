@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../api';
 
 export default function ConsultationDetail({ consultation, onProceedToRoutine, onBack }) {
   const [activeTab, setActiveTab] = useState('answers'); // 'answers' or 'photos'
@@ -30,6 +31,18 @@ export default function ConsultationDetail({ consultation, onProceedToRoutine, o
   const rightPhoto = consultation.right_photo_url || answers.right_photo_url;
 
   const hasAnyPhotos = frontPhoto || leftPhoto || rightPhoto;
+
+  // Helper to ensure image URLs point to the correct backend server instead of relative paths
+  const getPhotoUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:') || path.startsWith('data:')) {
+      return path;
+    }
+    // Extract root domain from API_BASE (e.g., changing https://backend.onrender.com/api to https://backend.onrender.com)
+    const rootBackend = API_BASE.replace(/\/api$/, '');
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${rootBackend}${cleanPath}`;
+  };
 
   // Helper to format array or string values cleanly
   const formatValue = (val, fallback = 'None specified') => {
@@ -117,7 +130,7 @@ export default function ConsultationDetail({ consultation, onProceedToRoutine, o
                 <div className="flex flex-col items-center gap-1.5 max-w-xs w-full">
                   <p className="text-xs font-bold text-gray-600">Front View</p>
                   <img 
-                    src={frontPhoto} 
+                    src={getPhotoUrl(frontPhoto)} 
                     alt="Front View" 
                     className="h-64 w-full rounded-xl border border-gray-200 object-cover shadow-sm"
                   />
@@ -129,7 +142,7 @@ export default function ConsultationDetail({ consultation, onProceedToRoutine, o
                 <div className="flex flex-col items-center gap-1.5 max-w-xs w-full">
                   <p className="text-xs font-bold text-gray-600">Left Profile</p>
                   <img 
-                    src={leftPhoto} 
+                    src={getPhotoUrl(leftPhoto)} 
                     alt="Left Profile" 
                     className="h-64 w-full rounded-xl border border-gray-200 object-cover shadow-sm"
                   />
@@ -141,7 +154,7 @@ export default function ConsultationDetail({ consultation, onProceedToRoutine, o
                 <div className="flex flex-col items-center gap-1.5 max-w-xs w-full">
                   <p className="text-xs font-bold text-gray-600">Right Profile</p>
                   <img 
-                    src={rightPhoto} 
+                    src={getPhotoUrl(rightPhoto)} 
                     alt="Right Profile" 
                     className="h-64 w-full rounded-xl border border-gray-200 object-cover shadow-sm"
                   />
