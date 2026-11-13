@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../api';
 
 export default function ViewRoutine({ consultationId, onProceedToBuy }) {
   const [routineData, setRoutineData] = useState(null);
@@ -13,11 +14,24 @@ export default function ViewRoutine({ consultationId, onProceedToBuy }) {
   }, [consultationId]);
 
   const fetchRoutine = async () => {
-    try {// ✅ Using your dynamic API_BASE variable
-const response = await fetch(`${API_BASE}/routines/${consultationId}`);
-const data = await response.json();
-      if (data.success) {
-        setRoutineData(data.routine);
+    // SAFEGUARD: Extract raw ID if an object was passed
+    let actualId = consultationId;
+    if (typeof consultationId === 'object' && consultationId !== null) {
+      actualId = consultationId.id || consultationId._id || consultationId.consultation_id || consultationId.consultationId;
+    }
+    if (!actualId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/routines/${actualId}`);
+      const data = await response.json();
+      
+      // Handle various response wrappers securely
+      const routine = data.routine || data.data || data;
+      if (routine) {
+        setRoutineData(routine);
       }
     } catch (err) {
       console.error("Failed to load routine", err);
@@ -34,20 +48,21 @@ const data = await response.json();
     );
   }
 
-  const products = typeof routineData?.products === 'string' 
-    ? JSON.parse(routineData.products) 
-    : (routineData?.products || []);
+  // Parse products safely whether stored as string, array, or object property
+  let rawProducts = routineData?.products || routineData?.recommendedProducts || [];
+  const products = typeof rawProducts === 'string' 
+    ? JSON.parse(rawProducts) 
+    : rawProducts;
 
   const totalPrice = products.reduce((acc, item) => acc + (Number(item.price) || 0), 0);
 
   const getImageUrl = (url) => {
     if (!url) return null;
-    // Make sure API_BASE is available in this file (e.g., const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';)
-
-if (url.startsWith('http://') || url.startsWith('https://')) return url;
-
-// ✅ Using your dynamic variable instead of hardcoded localhost
-return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    
+    const rootBackend = API_BASE.replace(/\/api$/, '');
+    const cleanPath = url.startsWith('/') ? url : `/${url}`;
+    return `${rootBackend}${cleanPath}`;
   };
 
   const handleNeedHelp = () => {
@@ -67,49 +82,54 @@ return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
         </div>
 
         {/* Admin Advice / Notes */}
-        {routineData?.admin_notes && (
+        {(routineData?.admin_notes || routineData?.notes) && (
           <div className="bg-[#fce4ec] border border-pink-200 p-3 rounded-xl mb-4 text-xs text-[#c2185b]">
-            <span className="font-bold">Admin Note: </span>"{routineData.admin_notes}"
+            <span className="font-bold">Admin Note: </span>"{routineData.admin_notes || routineData.notes}"
           </div>
         )}
 
         {/* Products List */}
         <div className="space-y-3 my-4">
-          {products.map((item, index) => {
-            const imgSrc = getImageUrl(item.image_url);
+          {products.length > 0 ? (
+            products.map((item, index) => {
+              const imgSrc = getImageUrl(item.image_url || item.imageUrl);
 
-            return (
-              <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                {imgSrc ? (
-                  <img 
-                    src={imgSrc} 
-                    alt={item.name} 
-                    className="w-12 h-12 object-cover rounded-lg border border-gray-200 bg-white"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
+              return (
+                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  {imgSrc ? (
+                    <img 
+                      src={imgSrc} 
+                      alt={item.name} 
+                      className="w-12 h-12 object-cover rounded-lg border border-gray-200 bg-white"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
 
-                <div 
-                  className="w-12 h-12 rounded-lg border border-pink-100 bg-pink-50 flex items-center justify-center text-xs font-bold text-[#e91e63] shrink-0"
-                  style={{ display: imgSrc ? 'none' : 'flex' }}
-                >
-                  {item.name ? item.name.charAt(0).toUpperCase() : '✨'}
+                  <div 
+                    className="w-12 h-12 rounded-lg border border-pink-100 bg-pink-50 flex items-center justify-center text-xs font-bold text-[#e91e63] shrink-0"
+                    style={{ display: imgSrc ? 'none' : 'flex' }}
+                  >
+                    {item.name ? item.name.charAt(0).toUpperCase() : '✨'}
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm text-gray-800">
+                      {index + 1}. {item.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 line-clamp-2">
+                      {item.description || item.category || 'Protects and repairs your skin barrier.'}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold text-gray-800">₦{(Number(item.price) || 0).toLocaleString()}</span>
                 </div>
-
-                <div className="flex-1">
-                  <h3 className="font-semibold text-sm text-gray-800">
-                    {index + 1}. {item.name}
-                  </h3>
-                  <p className="text-xs text-gray-500 line-clamp-2">
-                    {item.description || item.category || 'Protects and repairs your skin barrier.'}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <p className="text-center text-gray-400 text-sm py-6">No products found in this routine.</p>
+          )}
         </div>
 
         <button 
