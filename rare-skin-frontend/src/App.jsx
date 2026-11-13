@@ -93,21 +93,19 @@ export default function App() {
   const handleRoutineSent = () => {
     setView('admin-dashboard');
   };
-const handlePaymentSuccess = async (reference) => {
+
+  const handlePaymentSuccess = async (reference) => {
     setPaymentRef(reference.reference);
 
-    // Make sure this line is added so it knows whether to use Render or localhost
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     try {
-      // ✅ Now using the dynamic variable instead of hardcoded localhost
       await fetch(`${API_URL}/api/payments/verify`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        // (Make sure to include your body data or closing code here depending on the rest of your function)
         body: JSON.stringify({
           reference: reference.reference,
           consultationId: activeConsultationId,
@@ -140,7 +138,7 @@ const handlePaymentSuccess = async (reference) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fdf2f4]">
       <nav className="bg-gray-800 text-white px-4 py-2 flex justify-between items-center text-xs">
         <span className="font-semibold text-pink-400">Rare Skin Consult App</span>
         <div className="flex items-center gap-3">
