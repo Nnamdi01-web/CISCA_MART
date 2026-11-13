@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-// 👇 ADD THIS LINE RIGHT HERE
-const API_BASE = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api` 
-  : 'http://localhost:5000/api';
-  
+import { API_BASE } from '../../api';
+
 const AVAILABLE_PRODUCTS = [
   // Cleansers
   { id: 1, name: 'Gentle Cleanser', price: 6500, category: 'Cleanser' },
@@ -64,19 +61,18 @@ export default function CreateRoutine({ consultation, onRoutineSent, onBack }) {
     setSubmitting(true);
 
     try {
-    // ✅ Using your dynamic API_BASE variable
-    const response = await fetch(`${API_BASE}/admin/routines`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        consultationId: consultationId,
-        consultation_id: consultationId,
-        recommendedProducts,
-        products: recommendedProducts,
-        adminNotes,
-        totalPrice
-      })
-    });
+      const response = await fetch(`${API_BASE}/admin/routines`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          consultationId: consultationId,
+          consultation_id: consultationId,
+          recommendedProducts,
+          products: recommendedProducts,
+          adminNotes,
+          totalPrice
+        })
+      });
 
       const data = await response.json();
       if (data.success || response.ok) {
@@ -87,7 +83,7 @@ export default function CreateRoutine({ consultation, onRoutineSent, onBack }) {
       }
     } catch (err) {
       console.error(err);
-      alert('Error sending routine. Ensure backend server is running on port 5000.');
+      alert('Error sending routine. Ensure backend server is running.');
     } finally {
       setSubmitting(false);
     }
@@ -157,7 +153,7 @@ export default function CreateRoutine({ consultation, onRoutineSent, onBack }) {
                   <input
                     type="checkbox"
                     checked={isChecked}
-                    onChange={() => {}} // Handled by parent container click
+                    onChange={() => {}} 
                     className="accent-[#e91e63] h-4 w-4 rounded cursor-pointer"
                   />
                   <div>
@@ -191,7 +187,7 @@ export default function CreateRoutine({ consultation, onRoutineSent, onBack }) {
         disabled={submitting || selectedProductIds.length === 0}
         className="w-full bg-[#e91e63] hover:bg-[#c2185b] text-white font-semibold py-3 rounded-xl transition-colors text-sm disabled:opacity-50 shadow-md"
       >
-        {submitting ? 'Sending Routine...' : `Send Routine • ₦${totalPrice.toLocaleString()}`}
+        {submitting ? 'Sending Routine...' : `Send Routine • ₦{totalPrice.toLocaleString()}`}
       </button>
     </div>
   );

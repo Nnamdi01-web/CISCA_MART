@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, Clock } from 'lucide-react';
 import ViewRoutine from './ViewRoutine';
+import { API_BASE } from '../api';
 
 export default function ConsultationReceived({ consultationId, onBackHome, onProceedToBuy }) {
   const [status, setStatus] = useState('Under Review');
@@ -13,7 +14,6 @@ export default function ConsultationReceived({ consultationId, onBackHome, onPro
     if (typeof consultationId === 'object' && consultationId !== null) {
       actualId = consultationId.id || consultationId._id || consultationId.consultation_id || consultationId.consultationId;
     }
-    // If it's still an object, try to unwrap one more level if it's wrapped under data/consultation
     if (typeof actualId === 'object' && actualId !== null) {
       actualId = actualId.id || actualId.consultation_id || null;
     }
@@ -21,21 +21,27 @@ export default function ConsultationReceived({ consultationId, onBackHome, onPro
     if (!actualId) return;
     setLoading(true);
 
-try {
-  // ✅ Using API_BASE instead of hardcoded localhost
-  const res = await fetch(`${API_BASE}/admin/consultations/${actualId}`);
+    try {
+      const res = await fetch(`${API_BASE}/admin/consultations/${actualId}`);
       if (!res.ok) throw new Error('Failed to fetch status');
       const data = await res.json();
 
       const consultationData = data.consultation || data;
 
       if (consultationData && consultationData.status) {
-        setStatus(consultationData.status);
+        const currentStatus = consultationData.status;
+        setStatus(currentStatus);
 
-if (consultationData.status === 'Completed' || consultationData.status === 'Routine Ready' || consultationData.status === 'Paid') {
-  // ✅ Using API_BASE instead of hardcoded localhost
-  const routineRes = await fetch(`${API_BASE}/routines/${actualId}`);
-  if (routineRes.ok) {
+        // Flexible check for completed or reviewed statuses (case-insensitive)
+        const normalizedStatus = currentStatus.toLowerCase();
+        if (
+          normalizedStatus.includes('completed') || 
+          normalizedStatus.includes('ready') || 
+          normalizedStatus.includes('paid') || 
+          normalizedStatus.includes('reviewed')
+        ) {
+          const routineRes = await fetch(`${API_BASE}/routines/${actualId}`);
+          if (routineRes.ok) {
             const routineData = await routineRes.json();
             setRoutine(routineData.routine || routineData);
           } else {
@@ -56,7 +62,14 @@ if (consultationData.status === 'Completed' || consultationData.status === 'Rout
     return () => clearInterval(interval);
   }, [consultationId]);
 
-  if ((status === 'Completed' || status === 'Routine Ready' || status === 'Paid') && routine) {
+  const normalizedStatus = status.toLowerCase();
+  if (
+    (normalizedStatus.includes('completed') || 
+     normalizedStatus.includes('ready') || 
+     normalizedStatus.includes('paid') || 
+     normalizedStatus.includes('reviewed')) && 
+    routine
+  ) {
     return (
       <ViewRoutine 
         consultationId={consultationId} 
